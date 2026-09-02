@@ -1,0 +1,72 @@
+TWILIO BACKEND — RAILWAY PE DEPLOY KARNE KA GUIDE (Hinglish)
+================================================================
+
+Ye backend Twilio use karke real phone call trigger karta hai jab extension
+se signal aata hai.
+
+FILES:
+- app.py            → main Flask app, Twilio call logic
+- requirements.txt  → Python packages
+- Procfile          → Railway ko batata hai kaise app chalana hai
+
+STEP 1 — Twilio se 3 cheezein lo
+-----------------------------------
+1. https://console.twilio.com pe login karo (account already hai tumhara).
+2. Dashboard pe "Account SID" aur "Auth Token" milega — copy kar lo.
+3. Twilio ka apna phone number (jo tumne khareeda/trial me mila hai) copy karo
+   — format hoga jaise +1XXXXXXXXXX.
+
+STEP 2 — GitHub pe code daalo (Railway isi se deploy karta hai)
+------------------------------------------------------------------
+1. github.com pe naya repository banao, jaise "tg-call-backend".
+2. Is folder (tg-call-backend) ke saare files upload kar do usme.
+
+STEP 3 — Railway pe deploy karo
+-----------------------------------
+1. https://railway.app pe login karo (GitHub se login kar sakte ho).
+2. "New Project" > "Deploy from GitHub repo" > apna "tg-call-backend" repo select karo.
+3. Deploy hote hi Railway ek URL dega, jaise:
+   https://tg-call-backend-production.up.railway.app
+
+STEP 4 — Environment Variables set karo
+-------------------------------------------
+Railway project ke "Variables" tab me ye sab add karo:
+
+   TWILIO_ACCOUNT_SID   = tumhara Account SID
+   TWILIO_AUTH_TOKEN    = tumhara Auth Token
+   TWILIO_FROM_NUMBER   = tumhara Twilio number (+1XXXXXXXXXX)
+   CALL_TO_NUMBER       = jispe call chahiye (+91XXXXXXXXXX)
+   SECRET_KEY           = koi bhi random password, jaise "mySecret999"
+
+Save karte hi Railway apne aap redeploy kar dega.
+
+STEP 5 — Test karo
+---------------------
+Browser me ya Postman se ye URL POST karo:
+   https://tumhara-app.up.railway.app/trigger-call
+
+Body (JSON):
+{
+  "secret": "mySecret999"
+}
+
+Agar sab sahi hai to tumhare CALL_TO_NUMBER pe call aa jayegi aur response
+milega: {"status": "call_triggered", "call_sid": "..."}
+
+STEP 6 — Extension me connect karo
+--------------------------------------
+Chrome extension ke popup me:
+- Backend Webhook URL: https://tumhara-app.up.railway.app/trigger-call
+- Secret Key: mySecret999   (wahi jo Railway pe SECRET_KEY set kiya)
+- Alert Active: ON
+- Save Settings dabao
+
+Ab jab bhi web.telegram.org wale tab me tumhare group me naya message aayega,
+extension backend ko signal bhejega aur Twilio call aa jayegi.
+
+NOTE (IMPORTANT):
+-------------------
+- Twilio trial account me sirf verified numbers pe hi call ja sakti hai.
+  CALL_TO_NUMBER ko Twilio console me "Verified Caller IDs" me add karna
+  padega agar trial account hai.
+- Har call ka Twilio balance se paisa katega — trial me free credit milta hai.
